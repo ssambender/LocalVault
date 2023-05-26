@@ -179,6 +179,7 @@ function deletePasswordSet(row) {
     tableBody.removeChild(row);
 }
 
+// what happens what the EDIT button is clicked next to the password set
 function editPasswordSet(row) {
     const tableRow = row;
     const cells = tableRow.cells;
@@ -206,6 +207,8 @@ function editPasswordSet(row) {
     // Add the highlighted-row class to the edited row
     tableRow.classList.add('highlighted-row');
 
+    document.getElementById("passwordFormCancelButton").style.display = "inline";
+
     editRow = tableRow;
 }
 
@@ -217,6 +220,7 @@ document.getElementById("passwordForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
     document.getElementById("passwordFormSubmitButton").value = "ADD";
+    document.getElementById("passwordFormCancelButton").style.display = "none";
 
     // Remove highlighted row class from each element that has it on it
     let highlightedRowsArray = Array.from(document.getElementsByClassName("highlighted-row"));
@@ -236,6 +240,7 @@ document.getElementById("passwordForm").addEventListener("submit", function(e) {
         cells[1].innerHTML = websiteLink !== "" ? `<a href="${websiteLink}" target="_blank">${websiteLink}</a>` : "";
         cells[2].textContent = username;
         cells[3].textContent = password;
+
         editRow = null;
     } else {
         // Create a new row in the table with the input values
@@ -287,3 +292,24 @@ document.getElementById("passwordForm").addEventListener("submit", function(e) {
     document.getElementById("username").value = "";
     document.getElementById("password").value = "";
 });
+
+
+function editPasswordCancel() {
+    document.getElementById("passwordFormCancelButton").style.display = "none";
+
+    // Reset the form input fields
+    document.getElementById("websiteName").value = "";
+    document.getElementById("websiteLink").value = "";
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+
+    // Remove highlighted row class from each element that has it on it
+    let highlightedRowsArray = Array.from(document.getElementsByClassName("highlighted-row"));
+    highlightedRowsArray.forEach(row => {
+        row.classList.remove("highlighted-row");
+    });
+
+    editRow = null;
+
+    document.getElementById("passwordFormSubmitButton").value = "ADD";
+}
