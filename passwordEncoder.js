@@ -38,8 +38,12 @@ function saveEncodedPasswords() {
             websiteName + "," + websiteLink + "," + username + "," + password + "\n";
     }
 
+    // Encrypt the file content using a secret passphrase
+    const passphrase = "YourSecretPassphrase";
+    const encryptedContent = CryptoJS.AES.encrypt(fileContent, passphrase).toString();
+
     const filename = "passwords.lclv";
-    const blob = new Blob([fileContent], { type: "text/plain" });
+    const blob = new Blob([encryptedContent], { type: "text/plain" });
 
     // Create a temporary <a> element to trigger the download
     const anchor = document.createElement("a");
@@ -69,34 +73,6 @@ function copyToClipboard(text) {
 
 
 // Prompts user for file upload when ACCESS button clicked. Sets uploadedFileText if uploaded file is valid.
-/*function encoderPromptFile() {
-    let fileUpload = document.createElement("input");
-    fileUpload.type = "file";
-    fileUpload.accept = ".lclv";
-    fileUpload.style.display = "none";
-
-    fileUpload.addEventListener("change", function() {
-        let file = fileUpload.files[0];
-
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            let text = reader.result;
-
-            let firstLine = text.trim().split("\n")[0]; // Extract the first line of the text
-            if (firstLine.toString().replace(/\s/g, "") === localVaultFileKey.toString()) { // Check if the first line is equal to "this"
-                console.log("FIRST LINE MATCHES LOCALVAULT KEY");
-                encoderAccess();
-                uploadedFileText = text;
-            }
-        };
-        reader.readAsText(file);
-    });
-
-    document.body.appendChild(fileUpload);
-    fileUpload.click();
-    document.body.removeChild(fileUpload);
-}
-*/
 function encoderPromptFile() {
     let fileUpload = document.createElement("input");
     fileUpload.type = "file";
@@ -108,12 +84,14 @@ function encoderPromptFile() {
 
         var reader = new FileReader();
         reader.onload = function (e) {
-            let text = reader.result;
+            let encryptedText = reader.result;
 
-            let firstLine = text.trim().split("\n")[0]; // Extract the first line of the text
-            if (
-                firstLine.toString().replace(/\s/g, "") === localVaultFileKey.toString()
-            ) {
+            // Decrypt the file content using the secret passphrase
+            const passphrase = "YourSecretPassphrase";
+            const decryptedContent = CryptoJS.AES.decrypt(encryptedText, passphrase).toString(CryptoJS.enc.Utf8);
+
+            let firstLine = decryptedContent.trim().split("\n")[0]; // Extract the first line of the text
+            if (firstLine.toString().replace(/\s/g, "") === localVaultFileKey.toString()) {
                 console.log("FIRST LINE MATCHES LOCALVAULT KEY");
 
                 // Remove existing rows from the table
@@ -121,7 +99,7 @@ function encoderPromptFile() {
                 tableBody.innerHTML = "";
 
                 // Split the text content by newline character
-                const rows = text.trim().split("\n");
+                const rows = decryptedContent.trim().split("\n");
 
                 // Loop through the rows starting from the second row (index 1)
                 for (let i = 1; i < rows.length; i++) {
@@ -136,18 +114,22 @@ function encoderPromptFile() {
 
                     const cell1 = newRow.insertCell();
                     cell1.textContent = websiteName;
+                    cell1.classList.add("websiteName-cell");
 
                     const cell2 = newRow.insertCell();
-                    cell2.innerHTML =
-                        websiteLink !== ""
-                            ? `<a href="${websiteLink}" target="_blank">${websiteLink}</a>`
-                            : "";
+                    cell2.innerHTML = websiteLink !== "" ? `<a href="${websiteLink}" target="_blank">${websiteLink}</a>` : "";
+                    cell2.classList.add("websiteLink-cell");
 
                     const cell3 = newRow.insertCell();
                     cell3.textContent = username;
+                    cell3.classList.add("username-cell");
 
                     const cell4 = newRow.insertCell();
                     cell4.textContent = password;
+                    cell4.classList.add("password-cell"); // Add the custom class to the password cell
+                    cell4.addEventListener("click", function() {
+                        copyToClipboard(password);
+                    });
 
                     const cell5 = newRow.insertCell();
                     const editBtn = document.createElement("span");
@@ -170,7 +152,7 @@ function encoderPromptFile() {
 
                 // Show the accessed passwords page
                 encoderAccess();
-                uploadedFileText = text;
+                uploadedFileText = decryptedContent;
             }
         };
         reader.readAsText(file);
@@ -180,6 +162,7 @@ function encoderPromptFile() {
     fileUpload.click();
     document.body.removeChild(fileUpload);
 }
+
 
 
 let editRow = null;
