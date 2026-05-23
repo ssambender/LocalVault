@@ -1,4 +1,4 @@
-![Project Image](https://github.com/ssambender/LocalVault/blob/master/Demo1.png)
+![Project Image](Demo1.png)
 
 # LOCALVAULT - LOCAL PASSWORD DATABASE & ENCODER
 ### Using the website, you can:
@@ -8,4 +8,4 @@
 - Choose your own encryption key so that only the local user who knows the key can access the passwords. (coming soon)
 <br>
 
-![Project Image2](https://github.com/ssambender/LocalVault/blob/master/Demo2.png)
+![Project Image2](Demo2.png)
